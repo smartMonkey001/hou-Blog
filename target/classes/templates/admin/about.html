@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="commons/adminHead::head(~{::title})">
+		<title>关于我</title>
+</head>
+
+	<body>
+	<!-- 导航 -->
+	<div th:replace="commons/adminHead::top"></div>
+
+	<!-- 	主体 -->
+	<div class="h-body-bottom h-margin-show h-padded-td-large">
+	<div class="ui container">
+
+    <div  class="ui secondary form">
+        <input type="hidden" name="page">
+        <div class="inline fields">
+          <div class="field">
+            <input type="text" id="title"  placeholder="标题">
+          </div>
+          <div class="field">
+            <div class="ui labeled action input">
+                <div class="ui type selection dropdown">
+                    <input type="hidden" id="published">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">发布状态</div>
+                    <div class="menu">
+                        <div  class="item"  data-value="">全部</div>
+                        <div  class="item" th:data-value="1" th:text="已发表"></div>
+                        <div  class="item" th:data-value="0" th:text="草稿"></div>
+                    </div>
+                </div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui checkbox">
+              <input type="checkbox" id="recommend">
+<!--              <label for="recommend">推荐</label>-->
+            </div>
+          </div>
+          <div class="field">
+            <button  type="button" id="search-btn" class="ui teal  button"><i class="search icon"></i>搜索</button>
+          </div>
+		   <div class="field">
+		     <a th:href="@{/about/toAboutsInput}" class="ui  right floated orange  button">新增</a>
+		   </div>
+        </div>
+		
+		
+      </div>
+      <div id="table-container">
+        <table  class="ui compact teal table">
+          <thead>
+          <tr>
+            <th></th>
+            <th>标题</th>
+            <th>类型</th>
+            <th>状态</th>
+            <th>更新时间</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody id="about_list">
+
+          </tbody>
+          <tfoot>
+          <tr>
+			  <th>
+				  <span>总记录数:<b id="about_total"></b></span>
+			  </th>
+            <th colspan="7" id="about_Paging">
+
+            </th>
+			
+          </tr>
+          </tfoot>
+        </table>
+
+       <div class="ui success message " style="display: none" th:style="${msg!=null?'display:block;':'display:none;'}">
+          <i class="close icon"></i>
+          <div class="header">提示：</div>
+          <p th:text="${msg}" id="requset_msg"></p>
+           <p id="msg"></p>
+        </div>
+
+      </div>
+
+	</div>
+	</div>
+
+	<th:block th:replace="commons/adminHead::script" ></th:block>
+	<script>
+		$('.ui .dropdown').dropdown({
+			on:'hover'
+		});
+        $(".message .close").on("click",function () {
+            $(this).closest(".message")
+                .transition("fade");
+        });
+        $(function () {
+            queryAboutList();
+        })
+
+        $(document).on("click","#search-btn",function () {
+            $('#msg').text("");
+            $('#requset_msg').text("");
+            $(".message").attr("style","display:none;");
+            queryAboutList();
+        })
+
+            function queryAboutList(pageNum,pageSize) {
+
+             $.ajax({
+                 url:"/about/abouts",
+                 type:"GET",
+                 data:{
+                     "published":$("#published").val(),
+                     "title":$.trim($("#title").val()),
+                     // "recommend":$("#recommend").prop("checked"),
+                     "pageNum":pageNum,
+                     "pageSize":pageSize
+                 },
+                 success:function (data) {
+                     console.log(data)
+                     $("#about_list").empty();
+                 $.each(data.hashMap.pageList.list,function (index,item) {
+                     $("<tr></tr>").append(
+                         $("<td></td").append(index+1)
+                     ).append(
+                         $("<td></td").append(item.title)
+                     ).append(
+                         $("<td></td").append(item.type=="0"?"文章":item.type=="1"?"友链":"关于我")
+                     )
+                     .append(
+                         $("<td></td").append(item.published?"已发表":"草稿")
+                     ).append(
+                         $("<td></td").append(item.edittime!=null?item.edittime:item.createtime)
+                     ).append(
+                         $("<td></td>").attr("id",item.id).append(
+                             $("<a href=\"javascript:;\" class=\"ui mini teal basic button editBlogs\"></a>").append("编辑")
+                         ).append(
+                             $("<a href=\"javascript:;\" class=\"ui mini red basic button deleteBlogs\"></a>").append("删除")
+                         )
+                     ).appendTo("#about_list");
+                 })
+                 $("#about_total").text(data.hashMap.pageList.total);
+                     $("#about_Paging").empty();
+                  let div= $("<div class=\"ui mini pagination menu\"></div>");
+                  div.append(
+                      $("<a class=\"item\"></a>").append("上一页")
+                      .on("click",function () {
+                          queryAboutList(data.hashMap.pageList.prePage,null)
+                      })
+                  )
+                     $.each(data.hashMap.pageList.navigatepageNums,function (index,item) {
+                         div.append(
+                             $("<a class=\"item pageNum\"></a>").append(item)
+                                 .addClass(data.hashMap.pageList.pageNum==item?"active":"")
+                                 .on("click",function () {
+                                     queryAboutList(item,null)
+                                 })
+                         )
+                     })
+                     div.append(
+                         $("<a class=\"item\"></a>").append("下一页")
+                             .on("click",function () {
+                                 queryAboutList(data.hashMap.pageList.nextPage,null)
+                             })
+                     )
+                     div.appendTo("#about_Paging");
+                 }
+             })
+            }
+
+       $(document).on("click",".deleteBlogs",function () {
+      if (confirm("您确定要删除吗?")){
+          $('#msg').text("");
+          $('#requset_msg').text("");
+           $.ajax({
+               url:"/about/delete",
+               type:"POST",
+               data:{
+                   "id":$(this).parent().attr("id"),
+                   "_method":"DELETE"
+               },
+               success:function (data) {
+                  if (data.code=="100"){
+                      $('#msg').text("删除成功");
+                      $(".message").attr("style","display:block;");
+                      queryAboutList($(".pageNum").text(),null);
+                  }else {
+                      $('#msg').text(data.message);
+                      $(".message").attr("style","display:block;");
+                  }
+               }
+           })
+      }
+       })
+
+        $(document).on("click",".editBlogs",function () {
+            window.location.href="/about/toEditAbout?id="+$(this).parent().attr("id");
+        })
+	</script>
+	</body>
+</html>

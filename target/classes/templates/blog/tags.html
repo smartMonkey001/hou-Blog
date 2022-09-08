@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="commons/blogHead::head(~{::title})">
+	<title>Joe的小窝-标签</title>
+	</head>
+<style>
+	.a1 {
+		margin-top: 93px;
+		margin-left: -27px;
+		position: absolute;
+		font-size: 2.5rem;
+		text-align: center;
+		color: #FFFFFF;}
+	.h-body-bottom {
+		margin: auto;
+		margin-top: 10px;
+	}
+</style>
+	<body  onclick="playColor(event)" style="margin-top: -4px;">
+	<!-- 导航 -->
+	<div th:replace="commons/blogHead::top"></div>
+	<div id="indexBackground" >
+
+		<div   class="h-bg-text">
+			<center>
+				<p >
+					<h1 class="a1" >标签</h1>
+				</p>
+			</center>
+		</div>
+		<div class="h-bg-text">
+		</div>
+	</div>
+
+	<!-- 	主体 -->
+	<div class="h-body-bottom h-margin-show h-padded-td-large">
+	<div class="ui container">
+
+			<!-- 标签 -->
+		<div class="d-web-info-box animate__animated animate__fadeIn" id="tagsList"  style="display: none;">
+			<center><h1>标签 -- 共[[${TagsCount}]]个</h1></center>
+		<div class="ui h-padded-td-large aligned centered middle grid h-boder-radius" >
+		<div class="ui labeled button h-margin-td-tiny" th:each="tag : ${tags}" style="margin-left: 15px" >
+		<a href="javascript:;" th:id="${tag.id}"  class="ui tagsBtn"  th:classappend="${Id==tag.id} ? 'teal'">[[${tag.name}]]</a>
+		</div>
+		<input type="hidden" id="TagidHide" th:value="${Id}">
+		</div>
+		</div>
+			<!-- 内容 -->
+		<div id="type_list">
+
+
+		</div>
+			
+		<!--  bottom -->
+			<div class="ui middle aligned centered grid h-padded-td" id="blogTagPaging" >
+
+			</div>
+		</div>	
+			
+	</div>
+	</div>
+
+	<meting-js
+			server="netease"
+			type="playlist"
+			id="7470734184"
+			fixed="true"
+			loop="all"
+			order="random"
+			preload="auto"
+			list-folded="ture"
+			list-max-height="500px"
+			lrc-type="1">
+	</meting-js>
+
+		<th:block th:replace="commons/blogHead::script" ></th:block>
+	<script th:src="@{/js/tagsViews.js}"></script>
+	<script th:src="@{/js/flower.js}"></script>
+	<script th:src="@{/js/mouse_click.js}"></script>
+	</body>
+</html>
