@@ -1,7 +1,5 @@
-# Joeblog
+# hjc-blog
 个人博客系统 SpringBoot+Mybatisplus
-\
-博客地址：https://hsjhome.top
 ## 技术栈
 **1.前端**
  - JS框架：JQuery
@@ -21,7 +19,6 @@
  - 分页插件:PageHelper
  - 登录加密:MD5
  - 开发工具:IDEA  
- - 运行环境:腾讯云 Centos7 轻量应用服务器2核2G
  
 
 ## 简介
